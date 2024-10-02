@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def FrankeFunction(x, y):
@@ -9,13 +10,72 @@ def FrankeFunction(x, y):
     return term1 + term2 + term3 + term4
 
 
-def Z():
-    np.random.seed(42)
-    degree = range(18)
-    n = 1000
-    x = np.random.uniform(0, 1, n)
-    y = np.random.uniform(0, 1, n)
-    noise = 0.1 * np.random.normal(0, 1, n)
-    Z = FrankeFunction(x, y) + noise
+def error_bias_variance(y, y_pred):
+    error = np.mean((y - y_pred) ** 2)
+    bias = np.mean((y - np.mean(y_pred)) ** 2)
+    variance = np.var(y_pred)
 
-    return Z
+    return error, bias, variance
+
+
+def print_metrics(
+    model_name,
+    mse_train,
+    mse_test,
+    error_train,
+    error_test,
+    bias_train,
+    bias_test,
+    variance_train,
+    variance_test,
+    degree,
+    lambda_values=None,
+):
+    print(f"\nMetrics for {model_name} Model")
+    print("=" * 40)
+
+    for i, d in enumerate(degree):
+        if lambda_values is None:  # OLS case, no lambda values
+            print(f"Degree {d}:")
+            print(f"  Train MSE: {mse_train[i]:.4f}, Test MSE: {mse_test[i]:.4f}")
+            print(
+                f"  Train Error: {error_train[i]:.4f}, Test Error: {error_test[i]:.4f}"
+            )
+            print(f"  Train Bias: {bias_train[i]:.4f}, Test Bias: {bias_test[i]:.4f}")
+            print(
+                f"  Train Variance: {variance_train[i]:.4f}, Test Variance: {variance_test[i]:.4f}"
+            )
+        else:  # Ridge/Lasso case, iterate over lambda values
+            for j, lamb in enumerate(lambda_values):
+                print(f"Degree {d}, Lambda {lamb:.4f}:")
+                print(
+                    f"  Train MSE: {mse_train[i, j]:.4f}, Test MSE: {mse_test[i, j]:.4f}"
+                )
+                print(
+                    f"  Train Error: {error_train[i, j]:.4f}, Test Error: {error_test[i, j]:.4f}"
+                )
+                print(
+                    f"  Train Bias: {bias_train[i, j]:.4f}, Test Bias: {bias_test[i, j]:.4f}"
+                )
+                print(
+                    f"  Train Variance: {variance_train[i, j]:.4f}, Test Variance: {variance_test[i, j]:.4f}"
+                )
+        print()
+
+
+def plot_metrics(title, degree, train, test, lambda_values=None):
+    plt.figure(figsize=(10, 6))
+    if lambda_values is None:  # OLS case
+        plt.plot(degree, train, label=f"Train", marker="o")
+        plt.plot(degree, test, label=f"Test", marker="o")
+    else:  # Ridge/Lasso case, use 2D heatmap
+        for i, lamb in enumerate(lambda_values):
+            plt.plot(degree, train[:, i], label=f"Train (λ={lamb:.4f})", marker="o")
+            plt.plot(degree, test[:, i], label=f"Test (λ={lamb:.4f})", marker="o")
+
+    plt.title(title)
+    plt.xlabel("Polynomial Degree")
+    plt.ylabel(title)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
