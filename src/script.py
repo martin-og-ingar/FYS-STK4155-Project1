@@ -10,24 +10,21 @@ def FrankeFunction(x, y):
     return term1 + term2 + term3 + term4
 
 
-def error_bias_variance(y, y_pred):
-    error = np.mean((y - y_pred) ** 2)
+def bias_variance(y, y_pred):
     bias = np.mean((y - np.mean(y_pred)) ** 2)
     variance = np.var(y_pred)
 
-    return error, bias, variance
+    return bias, variance
 
 
 def print_metrics(
     model_name,
     mse_train,
-    mse_test,
-    error_train,
-    error_test,
+    mse_val,
     bias_train,
-    bias_test,
+    bias_val,
     variance_train,
-    variance_test,
+    variance_val,
     degree,
     lambda_values=None,
 ):
@@ -37,28 +34,22 @@ def print_metrics(
     for i, d in enumerate(degree):
         if lambda_values is None:  # OLS case, no lambda values
             print(f"Degree {d}:")
-            print(f"  Train MSE: {mse_train[i]:.4f}, Test MSE: {mse_test[i]:.4f}")
+            print(f"  Train MSE: {mse_train[i]:.4f}, Val MSE: {mse_val[i]:.4f}")
+            print(f"  Train Bias: {bias_train[i]:.4f}, Val Bias: {bias_val[i]:.4f}")
             print(
-                f"  Train Error: {error_train[i]:.4f}, Test Error: {error_test[i]:.4f}"
-            )
-            print(f"  Train Bias: {bias_train[i]:.4f}, Test Bias: {bias_test[i]:.4f}")
-            print(
-                f"  Train Variance: {variance_train[i]:.4f}, Test Variance: {variance_test[i]:.4f}"
+                f"  Train Variance: {variance_train[i]:.4f}, Val Variance: {variance_val[i]:.4f}"
             )
         else:  # Ridge/Lasso case, iterate over lambda values
             for j, lamb in enumerate(lambda_values):
                 print(f"Degree {d}, Lambda {lamb:.4f}:")
                 print(
-                    f"  Train MSE: {mse_train[i, j]:.4f}, Test MSE: {mse_test[i, j]:.4f}"
+                    f"  Train MSE: {mse_train[i, j]:.4f}, Val MSE: {mse_val[i, j]:.4f}"
                 )
                 print(
-                    f"  Train Error: {error_train[i, j]:.4f}, Test Error: {error_test[i, j]:.4f}"
+                    f"  Train Bias: {bias_train[i, j]:.4f}, Val Bias: {bias_val[i, j]:.4f}"
                 )
                 print(
-                    f"  Train Bias: {bias_train[i, j]:.4f}, Test Bias: {bias_test[i, j]:.4f}"
-                )
-                print(
-                    f"  Train Variance: {variance_train[i, j]:.4f}, Test Variance: {variance_test[i, j]:.4f}"
+                    f"  Train Variance: {variance_train[i, j]:.4f}, Val Variance: {variance_val[i, j]:.4f}"
                 )
         print()
 
